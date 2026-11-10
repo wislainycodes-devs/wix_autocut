@@ -1,33 +1,34 @@
 import os
+import shutil
 import yt_dlp
+
+COOKIES_SECRET = "/etc/secrets/cookies.txt"
+COOKIES_TMP = "/tmp/cookies.txt"
+
+def _cookies():
+    if os.path.exists(COOKIES_SECRET):
+        shutil.copy(COOKIES_SECRET, COOKIES_TMP)
+        return COOKIES_TMP
+    return None
 
 def baixar_video(url: str, pasta_saida: str = "downloads") -> str:
     os.makedirs(pasta_saida, exist_ok=True)
-
-    # Define o caminho absoluto para o cookies.txt na raiz do projeto
-    caminho_cookies = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'cookies.txt')
-    
-    # Se estiver rodando um nível acima, tenta buscar na pasta atual de trabalho
-    if not os.path.exists(caminho_cookies):
-        caminho_cookies = 'cookies.txt'
+    caminho_arquivo = os.path.join(pasta_saida, 'video_original.mp4')
 
     ydl_opts = {
         'format': 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best',
-        'outtmpl': os.path.join(pasta_saida, 'video_original.mp4'),
+        'outtmpl': caminho_arquivo,
         'quiet': False,
         'no_warnings': True,
-        'cookiefile': caminho_cookies,
-        'extractor_args': {'youtube': {'player_client': ['android', 'web']}},
-        'http_headers': {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-            'Accept-Language': 'en-US,en;q=0.9',
-        }
+        'cookiefile': _cookies(),
     }
 
-    print(f"[INFO] Iniciando o download com o cookie: {caminho_cookies}")
-    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-        ydl.download([url])
+    try:
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            ydl.download([url])
+    except yt_dlp.utils.DownloadError as e:
+        if "Sign in" in str(e) or "bot" in str(e):
+            raise RuntimeError("O YouTube bloqueou o servidor. Envie o arquivo de vídeo em vez do link.")
+        raise
 
-    caminho_arquivo = os.path.join(pasta_saida, 'video_original.mp4')
-    print(f"[SUCESSO] Vídeo baixado em: {caminho_arquivo}")
     return caminho_arquivo
