@@ -9,7 +9,8 @@ def baixar_video(url: str, pasta_saida: str = "downloads") -> str:
         'outtmpl': os.path.join(pasta_saida, 'video_original.mp4'),
         'quiet': False,
         'no_warnings': True,
-        # Adicione estas linhas para burlar a checagem de bot do YouTube:
+        # Linha essencial para autenticar o bot com os seus cookies:
+        'cookiefile': 'cookies.txt',
         'extractor_args': {'youtube': {'player_client': ['android', 'web']}},
         'http_headers': {
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
