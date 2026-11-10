@@ -9,11 +9,11 @@ def baixar_video(url: str, pasta_saida: str = "downloads") -> str:
         'outtmpl': os.path.join(pasta_saida, 'video_original.mp4'),
         'quiet': False,
         'no_warnings': True,
-        # Adicione estas linhas abaixo para evitar o bloqueio de bot do YouTube:
+        # Adicione estas linhas para burlar a checagem de bot do YouTube:
+        'extractor_args': {'youtube': {'player_client': ['android', 'web']}},
         'http_headers': {
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
             'Accept-Language': 'en-US,en;q=0.9',
-            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
         }
     }
 
